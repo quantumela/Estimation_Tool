@@ -1,5 +1,4 @@
 import streamlit as st
-st.write("App started")
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -646,8 +645,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Run the app
-if __name__ == "__main__":
-    st.write("Dashboard loaded successfully! Use the sidebar to adjust project parameters.")
+st.sidebar.success("Dashboard loaded successfully! Use the sidebar to adjust project parameters.")
+
 
 
 
