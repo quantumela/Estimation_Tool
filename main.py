@@ -1,8 +1,20 @@
 import streamlit as st
 import pandas as pd
+import base64
+import os
+import sys
 from datetime import datetime
+from streamlit_option_menu import option_menu
 
-# ✅ Page configuration
+# Add local modules path
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+
+# Local imports
+from foundation_module.foundation_app import render as render_foundation
+from payroll.app import render_payroll_tool
+from employeedata.app.data_migration_tool import render_employee_v2
+
+# ✅ Streamlit page config
 st.set_page_config(
     page_title="DaSH Migration Plan - Optimized",
     layout="wide",
@@ -10,76 +22,125 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ✅ Loading spinner & debug timestamp
-with st.spinner("Loading dashboard..."):
-    st.success(f"✅ App started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-# ✅ Initialize session state
-if 'project_data' not in st.session_state:
-    st.session_state.project_data = {
-        'project_name': 'SAP HCM Migration',
-        'lead_hours': 475,
-        'consultant_hours': 320,
-        'team_members': 3,
-        'days': 60
-    }
+# Hide Streamlit footer, header
+st.markdown("""
+    <style>
+    #MainMenu, footer, header {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
 
-# ✅ Sidebar input controls
-st.sidebar.header("🔧 Project Settings")
-st.session_state.project_data['project_name'] = st.sidebar.text_input(
-    "Project Name", st.session_state.project_data['project_name']
-)
-st.session_state.project_data['lead_hours'] = st.sidebar.number_input(
-    "Lead Hours", value=st.session_state.project_data['lead_hours'], min_value=0
-)
-st.session_state.project_data['consultant_hours'] = st.sidebar.number_input(
-    "Consultant Hours", value=st.session_state.project_data['consultant_hours'], min_value=0
-)
-st.session_state.project_data['team_members'] = st.sidebar.number_input(
-    "Team Members", value=st.session_state.project_data['team_members'], min_value=1
-)
-st.session_state.project_data['days'] = st.sidebar.slider(
-    "Project Duration (days)", min_value=30, max_value=120, value=st.session_state.project_data['days']
-)
-# ✅ Example data (replace later with real content)
-@st.cache_data
-def get_task_data():
-    return pd.DataFrame({
-        "Task": ["Design", "Mapping", "Validation", "Testing", "Go-Live"],
-        "Estimated Hours": [50, 100, 80, 60, 30],
-        "Assigned To": ["Lead", "Consultant", "QA", "QA", "All"]
-    })
+# Initialize session state routing
+if "page" not in st.session_state:
+    st.session_state.page = "Home"
+# 🔘 Sidebar navigation
+with st.sidebar:
+    selected = option_menu(
+        menu_title=None,
+        options=["Home", "Solutions", "Launch Demo"],
+        icons=["house", "wrench", "rocket"],
+        menu_icon="cast",
+        default_index=0,
+        styles={
+            "container": {"padding": "0!important", "background-color": "#f8f9fa"},
+            "icon": {"color": "black", "font-size": "18px"},
+            "nav-link": {
+                "font-size": "16px",
+                "text-align": "left",
+                "margin": "0px",
+                "--hover-color": "#eee",
+            },
+            "nav-link-selected": {"background-color": "#02ab21", "color": "white"},
+        },
+    )
+    st.session_state.page = selected
+if st.session_state.page == "Home":
+    st.markdown("## 🚀 Pioneering the Future of SAP HCM Transformations")
 
-task_data = get_task_data()
+    # 🔹 Background Banner Image
+    with open("pexels-googledeepmind-17483873.jpg", "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read()).decode()
+    st.markdown(
+        f"""
+        <div style="
+            background-image: url('data:image/jpg;base64,{encoded_string}');
+            background-size: cover;
+            background-position: center;
+            padding: 6rem 2rem;
+            border-radius: 1.5rem;
+            color: white;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 600;">
+            Your partner in SAP SuccessFactors data migration & transformation.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-# ✅ Tab layout
-tabs = st.tabs(["📊 Overview", "📁 Foundation", "🧍 Employee", "🧾 Payroll", "📅 Timeline"])
-# Overview
-with tabs[0]:
-    st.header("📊 Project Overview")
-    st.metric("Lead Hours", st.session_state.project_data['lead_hours'])
-    st.metric("Consultant Hours", st.session_state.project_data['consultant_hours'])
-    st.metric("Team Members", st.session_state.project_data['team_members'])
-    st.metric("Duration (Days)", st.session_state.project_data['days'])
+    # 🔹 Icon Grid - Benefits
+    st.markdown("### ⚡ Why Quantumela?")
+    cols = st.columns(3)
+    cols[0].info("✅ Faster Implementation")
+    cols[1].info("🔍 Accurate Mapping & Cleansing")
+    cols[2].info("📦 Seamless Data Validation")
 
-# Foundation
-with tabs[1]:
-    st.header("📁 Foundation Data")
-    st.dataframe(task_data)
+    # 🔹 SAP Services Block
+    st.markdown("### 💼 Built for SAP & SuccessFactors")
+    st.markdown("""
+        <div style="background-color: #e1f0ff; padding: 2rem; border-radius: 12px; text-align: center;">
+            <h4>💡 Services We Offer</h4>
+            <ul style="text-align:left; max-width:600px; margin:auto;">
+                <li>📁 Foundation Object Migration</li>
+                <li>🧍 Employee Data Cleansing</li>
+                <li>🧾 Payroll Mapping & Validation</li>
+            </ul>
+        </div>
+    """, unsafe_allow_html=True)
 
-# Employee
-with tabs[2]:
-    st.header("🧍 Employee Data")
-    st.info("Add your employee-related logic here.")
+    # 🔹 Solutions Overview Prompt
+    st.markdown("---")
+    st.markdown("### 🔍 Explore Solutions via the sidebar to view live demos.")
+elif st.session_state.page == "Solutions":
+    st.markdown("## 🛠️ Our Migration Solutions")
 
-# Payroll
-with tabs[3]:
-    st.header("🧾 Payroll Data")
-    st.info("Add payroll estimation tools here.")
+    st.markdown("Use the toggles below to explore our SAP → SuccessFactors data transformation offerings.")
 
-# Timeline
-with tabs[4]:
-    st.header("📅 Project Timeline")
-    st.info("Insert Gantt chart, milestones or planning tools here.")
-# Footer
-st.markdown("---")
-st.markdown("Built by Quantumela · Streamlit Cloud Optimized")
+    # 🔹 Data Migration Section
+    with st.expander("📁 Foundation Object Migration", expanded=False):
+        st.write("""
+            Automate and validate your Foundation Object mapping across SAP HCM and SuccessFactors.
+            Includes support for complex org structures, associations, and transformation logic.
+        """)
+        st.image("pexels-divinetechygirl-1181263.jpg", use_column_width=True)
+
+    # 🔹 Employee Data Section
+    with st.expander("🧍 Employee Data Cleansing", expanded=False):
+        st.write("""
+            Clean and transform employee master data with validation rules and fallback handling.
+            Identify discrepancies, assign default values, and preview changes in real time.
+        """)
+        st.image("pexels-divinetechygirl-1181340.jpg", use_column_width=True)
+
+    # 🔹 Variance Monitoring Section
+    with st.expander("🧾 Variance Monitoring & Payroll Mapping", expanded=False):
+        st.write("""
+            Cross-check pre- and post-migration payroll data using intelligent mapping sheets.
+            Detect anomalies, view statistical summaries, and export aligned reports.
+        """)
+        st.image("pexels-divinetechygirl-1181341.jpg", use_column_width=True)
+elif st.session_state.page == "Launch Demo":
+    st.markdown("## 🚀 Launch Your Migration Demo")
+
+    st.markdown("Choose a transformation module to explore below:")
+
+    b1, b2, b3 = st.columns(3)
+
+    with b1:
+        if st.button("📁 Foundation Objects"):
+            render_foundation()
+    with b2:
+        if st.button("🧍 Employee Data"):
+            render_employee_v2()
+    with b3:
+        if st.button("🧾 Payroll Mapping"):
+            render_payroll_tool()
